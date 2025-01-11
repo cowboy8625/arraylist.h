@@ -1,23 +1,22 @@
-#define VECTOR_IMPLEMENTATION
-#include "vector.h"
+#include "arraylist.h"
 #include <stdio.h>
 
-DEFINE_VECTOR(int)
+DEFINE_ARRAY_LIST(int)
 
 int main() {
-  intVector vector;
-  int_vector_init(&vector, sizeof(int));
+    intArrayList vector;
+    intArrayListInit(&vector, sizeof(int));
 
-  for (int i = 0; i < 10; i++) {
-    int_vector_push_back(&vector, i);
-  }
+    for (int i = 0; i < 10; i++) {
+        intArrayListPush(&vector, i);
+    }
 
-  for (size_t i = 0; i < vector.size; i++) {
-    int value = int_vector_get(&vector, i);
-    printf("%d ", value);
-  }
-  printf("\n");
+    for (size_t i = 0; i < vector.size; i++) {
+        int* value = intArrayListGet(&vector, i);
+        printf("%d ", *value);
+    }
+    printf("\n");
 
-  int_vector_free(&vector);
-  return 0;
+    intArrayListFree(&vector);
+    return 0;
 }

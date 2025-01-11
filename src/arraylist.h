@@ -3,14 +3,13 @@
  * |           Example Useage               |
  * +----------------------------------------+
  *
- * #define VECTOR_IMPLEMENTATION
- * #include "vector.h"
+ * #include "arraylist.h"
  * #include <stdio.h>
  *
- * DEFINE_VECTOR(int)
+ * DEFINE_ARRAY_LIST(int)
  *
  * int main() {
- *   intVector vector;
+ *   intArrayList vector;
  *   int_vector_init(&vector, sizeof(int));
  *
  *   for (int i = 0; i < 10; i++) {
@@ -28,51 +27,78 @@
  * }
  *
  */
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef ARRAY_LIST_H
+#define ARRAY_LIST_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define DEFINE_VECTOR(type)                                                    \
+/// Usaged if you dont want to have a header file
+#define DEFINE_ARRAY_LIST(type)                                                \
+  DEFINE_ARRAY_LIST_HEADER(type)                                               \
+  DEFINE_ARRAY_LIST_IMPLEMENTATION(type)
+
+#define DEFINE_ARRAY_LIST_HEADER(type)                                         \
   typedef struct {                                                             \
     type *data;                                                                \
     size_t size;                                                               \
     size_t capacity;                                                           \
-  } type##Vector;                                                              \
+  } type##ArrayList;                                                           \
                                                                                \
-  void type##_vector_init(type##Vector *vector, size_t initial_capacity) {     \
+  void type##ArrayListInit(type##ArrayList *vector, size_t initial_capacity);  \
+  void type##ArrayListResize(type##ArrayList *vector, size_t new_capacity);    \
+  void type##ArrayListPush(type##ArrayList *vector, type element);             \
+  type type##ArrayListPop(type##ArrayList *vector);                            \
+  type *type##ArrayListGet(type##ArrayList *vector, size_t index);             \
+  void type##ArrayListClearRetainSize(type##ArrayList *vector);                \
+  void type##ArrayListFree(type##ArrayList *vector);
+
+#define DEFINE_ARRAY_LIST_IMPLEMENTATION(type)                                 \
+  void type##ArrayListInit(type##ArrayList *vector, size_t initial_capacity) { \
     vector->data = (type *)malloc(initial_capacity * sizeof(type));            \
     vector->size = 0;                                                          \
     vector->capacity = initial_capacity;                                       \
   }                                                                            \
                                                                                \
-  void type##_vector_resize(type##Vector *vector, size_t new_capacity) {       \
+  void type##ArrayListResize(type##ArrayList *vector, size_t new_capacity) {   \
     vector->data = (type *)realloc(vector->data, new_capacity * sizeof(type)); \
     vector->capacity = new_capacity;                                           \
   }                                                                            \
                                                                                \
-  void type##_vector_push_back(type##Vector *vector, type element) {           \
+  void type##ArrayListPush(type##ArrayList *vector, type element) {            \
     if (vector->size == vector->capacity) {                                    \
-      type##_vector_resize(vector, vector->capacity * 2);                      \
+      type##ArrayListResize(vector, vector->capacity * 2);                     \
     }                                                                          \
     vector->data[vector->size++] = element;                                    \
   }                                                                            \
                                                                                \
-  type type##_vector_get(type##Vector *vector, size_t index) {                 \
+  type type##ArrayListPop(type##ArrayList *vector) {                           \
+    if (vector->size == 0) {                                                   \
+      fprintf(stderr, "ArrayList is empty\n");                                 \
+      exit(EXIT_FAILURE);                                                      \
+    }                                                                          \
+    type value = vector->data[--vector->size];                                 \
+    return value;                                                              \
+  }                                                                            \
+                                                                               \
+  type *type##ArrayListGet(type##ArrayList *vector, size_t index) {            \
     if (index >= vector->size) {                                               \
       fprintf(stderr, "Index out of bounds\n");                                \
       exit(EXIT_FAILURE);                                                      \
     }                                                                          \
-    return vector->data[index];                                                \
+    return &vector->data[index];                                               \
   }                                                                            \
                                                                                \
-  void type##_vector_free(type##Vector *vector) {                              \
+  void type##ArrayListClearRetainSize(type##ArrayList *vector) {               \
+    vector->size = 0;                                                          \
+  }                                                                            \
+                                                                               \
+  void type##ArrayListFree(type##ArrayList *vector) {                          \
     free(vector->data);                                                        \
     vector->data = NULL;                                                       \
     vector->size = 0;                                                          \
     vector->capacity = 0;                                                      \
   }
 
-#endif // VECTOR_IMPLEMENTATION
+#endif // ARRAY_LIST_IMPLEMENTATION
